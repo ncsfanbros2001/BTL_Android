@@ -63,13 +63,11 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-            <Spinner
+            <com.toptoche.searchablespinnerlibrary.SearchableSpinner
                 android:id="@+id/timezoneSpinner"
                 android:layout_width="250dp"
                 android:layout_height="60dp"
-                android:layout_marginStart="1dp"
-                android:layout_marginTop="65dp"
-                android:layout_marginEnd="1dp"
+                android:layout_marginTop="50dp"
                 android:background="@drawable/add_button"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

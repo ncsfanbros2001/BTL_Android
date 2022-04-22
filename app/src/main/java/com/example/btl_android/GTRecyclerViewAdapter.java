@@ -30,22 +30,26 @@ public class GTRecyclerViewAdapter extends RecyclerView.Adapter<GTRecyclerViewAd
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Giving a look to the rows
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_view_global_time, parent, false);
         return new MyViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        // Assigning values to the views based on the posotion
         holder.textView.setText(gtlist.get(position).getArea());
         holder.textClock.setTimeZone(gtlist.get(position).getArea());
     }
 
     @Override
     public int getItemCount() {
+        // Total number you want to display
         return gtlist.size();
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
+        // Grabbing the views from the recycler_view_global_time layout file based on the position
         ConstraintLayout constraintLayout;
         TextClock textClock;
         TextView textView;

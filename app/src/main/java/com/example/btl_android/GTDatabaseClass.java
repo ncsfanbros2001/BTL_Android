@@ -45,11 +45,11 @@ public class GTDatabaseClass extends SQLiteOpenHelper {
         long resultValue = db.insert(tableName, null, contentValues);
 
         if (resultValue == -1) {
-            Toast.makeText(context, "Failed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Thêm thất bại", Toast.LENGTH_SHORT).show();
         }
         else
         {
-            Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Thêm thành công", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -86,4 +86,5 @@ public class GTDatabaseClass extends SQLiteOpenHelper {
             Toast.makeText(context, "Xóa Thành Công", Toast.LENGTH_SHORT).show();
         }
     }
+
 }

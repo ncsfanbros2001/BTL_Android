@@ -7,17 +7,23 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextClock;
 import android.widget.Toast;
@@ -30,10 +36,9 @@ import java.util.List;
 import java.util.TimeZone;
 
 public class GlobalTimeActivity extends AppCompatActivity {
-    Button AddBtn, DelAllBTN;
+    Button AddBtn, DelAllBTN, BackBTN;
     Dialog dialog;
     Spinner spinner;
-    TextClock textClock;
     RecyclerView recyclerView;
     GTRecyclerViewAdapter gtRecyclerViewAdapter;
     List<GTModel> list;
@@ -58,6 +63,7 @@ public class GlobalTimeActivity extends AppCompatActivity {
 
         AddBtn = findViewById(R.id.AddBTN);
         DelAllBTN = findViewById(R.id.deleteAllBTN);
+        BackBTN = findViewById(R.id.backBTN);
 
         dialog = new Dialog(this);
         recyclerView = findViewById(R.id.timezoneRecyclerView);
@@ -88,6 +94,14 @@ public class GlobalTimeActivity extends AppCompatActivity {
             }
         });
 
+        BackBTN.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(GlobalTimeActivity.this, MainActivity.class);
+                startActivity(i);
+            }
+        });
+
         ItemTouchHelper helper = new ItemTouchHelper(callback);
         helper.attachToRecyclerView(recyclerView);
     }
@@ -101,31 +115,49 @@ public class GlobalTimeActivity extends AppCompatActivity {
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            int position = viewHolder.getAdapterPosition();
-            GTModel item = gtRecyclerViewAdapter.getGtlist().get(position);
+              AlertDialog.Builder alert = new AlertDialog.Builder(GlobalTimeActivity.this);
+              alert.setTitle("Xóa");
+              alert.setMessage("Bạn có thực sự muốn xóa ?");
+              alert.setPositiveButton("Có", new DialogInterface.OnClickListener() {
+                  @Override
+                  public void onClick(DialogInterface dialogInterface, int i) {
+                      int position = viewHolder.getAdapterPosition();
+                      GTModel item = gtRecyclerViewAdapter.getGtlist().get(position);
 
-            gtRecyclerViewAdapter.removeTimezone(viewHolder.getAdapterPosition());
+                      gtRecyclerViewAdapter.removeTimezone(viewHolder.getAdapterPosition());
 
-            Snackbar snackbar = Snackbar.make(constraintLayout, "Đã Xóa", Snackbar.LENGTH_LONG)
-                    .setAction("Hoàn Tác", new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    gtRecyclerViewAdapter.restoreTimezone(item, position);
-                    recyclerView.scrollToPosition(position);
-                }
-            }).addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
-                @Override
-                public void onDismissed(Snackbar transientBottomBar, int event) {
-                    super.onDismissed(transientBottomBar, event);
-                    System.out.println(item.getId());
-                    if (!(event == DISMISS_EVENT_ACTION)) {
-                        GTDatabaseClass db = new GTDatabaseClass(GlobalTimeActivity.this);
-                        db.deleteSingleTimezone(item.getArea());
-                    }
-                }
-            });
-            snackbar.setActionTextColor(Color.YELLOW);
-            snackbar.show();
+                      Snackbar snackbar = Snackbar.make(constraintLayout, "Đã Xóa", Snackbar.LENGTH_LONG)
+                              .setAction("Hoàn Tác", new View.OnClickListener() {
+                                  @Override
+                                  public void onClick(View view) {
+                                      gtRecyclerViewAdapter.restoreTimezone(item, position);
+                                      recyclerView.scrollToPosition(position);
+                                  }
+                              }).addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                                  @Override
+                                  public void onDismissed(Snackbar transientBottomBar, int event) {
+                                      super.onDismissed(transientBottomBar, event);
+                                      if (!(event == DISMISS_EVENT_ACTION)) {
+                                          GTDatabaseClass db = new GTDatabaseClass(GlobalTimeActivity.this);
+                                          db.deleteSingleTimezone(item.getArea());
+                                      }
+                                  }
+                              });
+                      snackbar.setActionTextColor(Color.YELLOW);
+                      snackbar.show();
+                  }
+              });
+              alert.setNegativeButton("Không", new DialogInterface.OnClickListener() {
+                  @Override
+                  public void onClick(DialogInterface dialogInterface, int i) {
+                      int position = viewHolder.getAdapterPosition();
+                      GTModel item = gtRecyclerViewAdapter.getGtlist().get(position);
+
+                      gtRecyclerViewAdapter.restoreTimezone(item, position);
+                      recyclerView.scrollToPosition(position);
+                  }
+              });
+              alert.show();
         }
     };
     // ----------------------------------------
@@ -157,11 +189,11 @@ public class GlobalTimeActivity extends AppCompatActivity {
 
         // ---------------- THÊM MÚI GIỜ VÀO SPINNER ----------------
         String[] timezoneList = TimeZone.getAvailableIDs();
-        ArrayList<String> list = new ArrayList<>();
-        for (int i = 0; i < timezoneList.length; i++) {
-            list.add(timezoneList[i]);
+        ArrayList<String> tzlist = new ArrayList<>();
+        for (int i = timezoneList.length - 1; i >= 0; i--) {
+            tzlist.add(timezoneList[i]);
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_selected, list);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_selected, tzlist);
         adapter.setDropDownViewResource(R.layout.spinner_dropdown);
 
         spinner.setAdapter(adapter);
